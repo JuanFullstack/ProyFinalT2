@@ -1,27 +1,20 @@
-﻿
-
-@{
-    ViewData["Title"] = "Listado tareas";
+﻿@{
+    ViewData["Title"] = "Listado Tableros";
 }
 
-<div class="text-center">  
-    <h1 class="display-4">Mis tareas</h1>
-    <button type="button" class="btn btn-primary mb-3" onclick="agregarNuevaTareaAlListado()">
-        Agregar nueva tarea
+<div class="text-center">
+    <h1 class="display-4">Mis Tableros</h1>
+    <button type="button" class="btn btn-primary mb-3" onclick="mostrarFormularioCrearTablero()">
+        Agregar nuevo tablero
     </button>
 </div>
 
-<div id="contenedor-listado-tareas" class="text-center">
-    <div id="reordenable" class="text-start" data-bind="foreach: tareas">
-        <div name="tarea" class="border mb-2 p-2" style="cursor: pointer"
-             data-bind="click: manejarClickTarea">
-            <div data-bind="text: titulo, hidden: esNuevo" class="fw-bold">
-            </div>
-
-            <input type="text" name="titulo-tarea" autocomplete="off"
-                   data-bind="value: titulo, visible: esNuevo,
-                    attr: {'data-id': id},
-                    event: {focusout: manejarFocusoutTituloTarea}" />
+<div id="contenedor-listado-tableros" class="text-center">
+    <div class="text-start" data-bind="foreach: tableros">
+        <div class="border mb-2 p-2" style="cursor: pointer"
+             data-bind="click: () => obtenerTableroConTareas(id())">
+            <h4 data-bind="text: nombre"></h4>
+            <p data-bind="text: descripcion"></p>
         </div>
     </div>
 
@@ -29,56 +22,40 @@
         <span class="visually-hidden">Cargando...</span>
     </div>
 
-    <div data-bind="visible: noHayTareas">
-        No existen tareas para mostrar
+    <div data-bind="visible: noHayTableros">
+        No existen tableros para mostrar
     </div>
 </div>
 
-<partial name="_ModalEditarTarea" />
+<div id="contenedor-tareas" data-bind="visible: tablero">
+    <h2 data-bind="text: tablero().nombre"></h2>
+    <div data-bind="foreach: tareas">
+        <p data-bind="text: titulo"></p>
+    </div>
+</div>
 
 @section Scripts {
-    <script src="~/js/utilidades.js" asp-append-version="true"></script>
-    <script src="~/js/tareas.js" asp-append-version="true"></script>
-
+    <script src="~/js/tableros.js" asp-append-version="true"></script>
     <script>
-        const urlTareas = "/api/tareas";
-
-        const modalEditarTarea = document.getElementById('modal-editar-tarea');
-        const modalEditarTareaBootstrap = new bootstrap.Modal(modalEditarTarea);
-
-        function tareaListadoViewModelFn() {
+        function tableroListadoViewModelFn() {
             var self = this;
-            self.tareas = ko.observableArray([]);
+            self.tableros = ko.observableArray([]);
             self.cargando = ko.observable(true);
 
-            self.noHayTareas = ko.pureComputed(function () {
-                if (self.cargando()) {
-                    return false;
-                }
-                return self.tareas().length === 0;
-            });
+            self.noHayTableros = ko.pureComputed(() => !self.cargando() && self.tableros().length === 0);
         }
 
-        function tareaElementoListadoViewModel({ id, titulo }) {
+        function tableroElementoListadoViewModel({ id, nombre, descripcion }) {
             var self = this;
             self.id = ko.observable(id);
-            self.titulo = ko.observable(titulo);
-            self.esNuevo = ko.pureComputed(function () {
-                return self.id() == 0;
-            });
+            self.nombre = ko.observable(nombre);
+            self.descripcion = ko.observable(descripcion);
         }
 
-        const tareaEditarVM = {
-            id: 0,
-            titulo: ko.observable(''),
-            descripcion: ko.observable('')
-        };
+        const tableroListadoViewModel = new tableroListadoViewModelFn();
 
-        const tareaListadoViewModel = new tareaListadoViewModelFn(); 
+        obtenerTableros();
 
-        obtenerTareas();
-
-        ko.applyBindings(tareaListadoViewModel, document.getElementById('contenedor-listado-tareas'));
-        ko.applyBindings(tareaEditarVM, document.getElementById('modal-editar-tarea'));
+        ko.applyBindings(tableroListadoViewModel, document.getElementById('contenedor-listado-tableros'));
     </script>
 }
