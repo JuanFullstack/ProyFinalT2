@@ -1,20 +1,20 @@
-﻿@{
-    ViewData["Title"] = "Listado Tableros";
-}
-
-<div class="text-center">
-    <h1 class="display-4">Mis Tableros</h1>
-    <button type="button" class="btn btn-primary mb-3" onclick="mostrarFormularioCrearTablero()">
+﻿<div class="text-center">
+    <h1 class="display-4">Mis tableros</h1>
+    <button type="button" class="btn btn-primary mb-3" onclick="agregarNuevoTableroAlListado()">
         Agregar nuevo tablero
     </button>
 </div>
 
 <div id="contenedor-listado-tableros" class="text-center">
-    <div class="text-start" data-bind="foreach: tableros">
-        <div class="border mb-2 p-2" style="cursor: pointer"
-             data-bind="click: () => obtenerTableroConTareas(id())">
-            <h4 data-bind="text: nombre"></h4>
-            <p data-bind="text: descripcion"></p>
+    <div id="reordenable" class="text-start" data-bind="foreach: tableros">
+        <div name="tablero" class="border mb-2 p-2" style="cursor: pointer"
+             data-bind="click: manejarClickTablero">
+            <div data-bind="text: nombre, hidden: esNuevo" class="fw-bold"></div>
+
+            <input type="text" name="nombre-tablero" autocomplete="off"
+                   data-bind="value: nombre, visible: esNuevo,
+                    attr: {'data-id': id},
+                    event: {focusout: manejarFocusoutNombreTablero}" />
         </div>
     </div>
 
@@ -27,34 +27,37 @@
     </div>
 </div>
 
-<div id="contenedor-tareas" data-bind="visible: tablero">
-    <h2 data-bind="text: tablero().nombre"></h2>
-    <div data-bind="foreach: tareas">
-        <p data-bind="text: titulo"></p>
-    </div>
-</div>
-
 @section Scripts {
     <script src="~/js/tableros.js" asp-append-version="true"></script>
+    <script src="~/js/utilidades.js" asp-append-version="true"></script>
+    <script src="~/js/tareas.js" asp-append-version="true"></script>
+
     <script>
+        const urlTableros = "/api/tableros";
+
         function tableroListadoViewModelFn() {
             var self = this;
             self.tableros = ko.observableArray([]);
             self.cargando = ko.observable(true);
 
-            self.noHayTableros = ko.pureComputed(() => !self.cargando() && self.tableros().length === 0);
+            self.noHayTableros = ko.pureComputed(function () {
+                if (self.cargando()) {
+                    return false;
+                }
+                return self.tableros().length === 0;
+            });
         }
 
-        function tableroElementoListadoViewModel({ id, nombre, descripcion }) {
+        function tableroElementoListadoViewModel({ id, nombre }) {
             var self = this;
             self.id = ko.observable(id);
             self.nombre = ko.observable(nombre);
-            self.descripcion = ko.observable(descripcion);
+            self.esNuevo = ko.pureComputed(function () {
+                return self.id() == 0;
+            });
         }
 
         const tableroListadoViewModel = new tableroListadoViewModelFn();
-
-        obtenerTableros();
 
         ko.applyBindings(tableroListadoViewModel, document.getElementById('contenedor-listado-tableros'));
     </script>

@@ -1,13 +1,12 @@
-﻿
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper.QueryableExtensions;
 using AutoMapper;
 using ProyFinalT2.Entidades;
+using ProyFinalT2.Models;
 using ProyFinalT2.Servicios;
-using ProyFinalT2;
 
-namespace ManejosTareas.Seguridad.JC.Controllers
+namespace ProyFinalT2.Controllers
 {
     [Route("api/tableros")]
     public class TablerosController : ControllerBase
@@ -24,13 +23,17 @@ namespace ManejosTareas.Seguridad.JC.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<Tablero>>> Get()
+        public async Task<ActionResult<List<TableroDTO>>> Get()
         {
-            var usuarioId = servicioUsuarios.ObtenerUsuarioId();
+            if (!int.TryParse(servicioUsuarios.ObtenerUsuarioId(), out var usuarioId))
+            {
+                return BadRequest("El ID de usuario no es válido.");
+            }
 
             var tableros = await context.Tableros
-                .Where(t => t.IdUsuarioPropietario == int.Parse(usuarioId)) // Se asegura que coincidan los tipos
-                .Include(t => t.Tareas) // Incluye las tareas relacionadas
+                .Where(t => t.IdUsuarioPropietario == usuarioId ||
+                            t.Tareas.Any(tarea => tarea.UsuarioCreacionId == usuarioId))
+                .ProjectTo<TableroDTO>(mapper.ConfigurationProvider)
                 .ToListAsync();
 
             return tableros;
@@ -39,13 +42,18 @@ namespace ManejosTareas.Seguridad.JC.Controllers
         [HttpGet("{id:int}")]
         public async Task<ActionResult<Tablero>> Get(int id)
         {
-            var usuarioId = servicioUsuarios.ObtenerUsuarioId();
+            if (!int.TryParse(servicioUsuarios.ObtenerUsuarioId(), out var usuarioId))
+            {
+                return BadRequest("El ID de usuario no es válido.");
+            }
 
             var tablero = await context.Tableros
-                .Include(t => t.Tareas) // Incluye las tareas relacionadas
-                .FirstOrDefaultAsync(t => t.Id == id && t.IdUsuarioPropietario == int.Parse(usuarioId)); // Comparación corregida
+                .Include(t => t.Tareas)
+                .FirstOrDefaultAsync(t => t.Id == id &&
+                    (t.IdUsuarioPropietario == usuarioId ||
+                     t.Tareas.Any(tarea => tarea.UsuarioCreacionId == usuarioId)));
 
-            if (tablero == null)
+            if (tablero is null)
             {
                 return NotFound();
             }
@@ -54,48 +62,77 @@ namespace ManejosTareas.Seguridad.JC.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Tablero>> Post([FromBody] Tablero tablero)
+        public async Task<ActionResult<Tablero>> Post([FromBody] string nombre)
         {
-            var usuarioId = servicioUsuarios.ObtenerUsuarioId();
-            tablero.IdUsuarioPropietario = int.Parse(usuarioId);
+            if (!int.TryParse(servicioUsuarios.ObtenerUsuarioId(), out var usuarioId))
+            {
+                return BadRequest("El ID de usuario no es válido.");
+            }
+
+            var tablero = new Tablero
+            {
+                Nombre = nombre,
+                IdUsuarioPropietario = usuarioId
+            };
+
             context.Add(tablero);
             await context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(Get), new { id = tablero.Id }, tablero);
+            return tablero;
         }
 
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> Put(int id, [FromBody] Tablero tableroActualizado)
+        public async Task<IActionResult> EditarTablero(int id, [FromBody] TableroEditarDTO tableroEditarDTO)
         {
-            var usuarioId = servicioUsuarios.ObtenerUsuarioId();
+            if (!int.TryParse(servicioUsuarios.ObtenerUsuarioId(), out var usuarioId))
+            {
+                return BadRequest("El ID de usuario no es válido.");
+            }
 
-            var tablero = await context.Tableros.FirstOrDefaultAsync(t => t.Id == id && t.IdUsuarioPropietario == int.Parse(usuarioId));
-            if (tablero == null)
+            var tablero = await context.Tableros.FirstOrDefaultAsync(t =>
+                t.Id == id && t.IdUsuarioPropietario == usuarioId);
+
+            if (tablero is null)
             {
                 return NotFound();
             }
 
-            tablero.Nombre = tableroActualizado.Nombre;
-            tablero.Descripcion = tableroActualizado.Descripcion;
+            tablero.Nombre = tableroEditarDTO.Nombre;
+            tablero.Descripcion = tableroEditarDTO.Descripcion;
 
             await context.SaveChangesAsync();
-            return NoContent();
+
+            return Ok();
         }
 
         [HttpDelete("{id:int}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
-            var usuarioId = servicioUsuarios.ObtenerUsuarioId();
+            if (!int.TryParse(servicioUsuarios.ObtenerUsuarioId(), out var usuarioId))
+            {
+                return BadRequest("El ID de usuario no es válido.");
+            }
 
-            var tablero = await context.Tableros.FirstOrDefaultAsync(t => t.Id == id && t.IdUsuarioPropietario == int.Parse(usuarioId));
-            if (tablero == null)
+            var tablero = await context.Tableros.FirstOrDefaultAsync(t =>
+                t.Id == id && t.IdUsuarioPropietario == usuarioId);
+
+            if (tablero is null)
             {
                 return NotFound();
             }
 
             context.Remove(tablero);
             await context.SaveChangesAsync();
-            return NoContent();
+            return Ok();
         }
+    }
+}
+
+namespace ProyFinalT2.Models
+{
+    public class TableroEditarDTO
+    {
+        public string Nombre { get; set; }
+        public string Descripcion { get; set; }
     }
 }
