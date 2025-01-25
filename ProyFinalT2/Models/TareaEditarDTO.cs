@@ -9,4 +9,5 @@ namespace ProyFinalT2.Models
         public string Titulo { get; set; }
         public string Descripcion { get; set; }
     }
+
 }
