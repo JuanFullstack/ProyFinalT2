@@ -1,112 +1,159 @@
-﻿//using Microsoft.AspNetCore.Mvc;
-//using Microsoft.EntityFrameworkCore;
-//using AutoMapper;
-//using AutoMapper.QueryableExtensions;
-//using System.Threading.Tasks;
-//using System.Collections.Generic;
-//using System.Linq;
-//using ProyFinalT2.Entidades;
-//using ProyFinalT2.Models;
-//using ProyFinalT2.Servicios;
+﻿using ProyFinalT2.Entidades;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using ProyFinalT2.Servicios;
+using ProyFinalT2.Models;
+using AutoMapper.QueryableExtensions;
+using AutoMapper;
 
-//namespace ProyFinalT2.Controllers
-//{
-//    [Route("api/tableros")]
-//    public class TablerosController : ControllerBase
-//    {
-//        private readonly ApplicationDbContext context;
-//        private readonly IServicioUsuarios servicioUsuarios;
-//        private readonly IMapper mapper;
+namespace ProyFinalT2.Controllers
+{
+    [Route("api/tableros")]
+    public class TablerosController : ControllerBase
+    {
+        private readonly ApplicationDbContext context;
+        private readonly IServicioUsuarios servicioUsuarios;
+        private readonly IMapper mapper;
 
-//        public TablerosController(ApplicationDbContext context, IServicioUsuarios servicioUsuarios, IMapper mapper)
-//        {
-//            this.context = context;
-//            this.servicioUsuarios = servicioUsuarios;
-//            this.mapper = mapper;
-//        }
+        public TablerosController(ApplicationDbContext context,
+            IServicioUsuarios servicioUsuarios,
+            IMapper mapper)
+        {
+            this.context = context;
+            this.servicioUsuarios = servicioUsuarios;
+            this.mapper = mapper;
+        }
 
-//        [HttpGet]
-//        public async Task<ActionResult<List<TableroDTO>>> Get()
-//        {
-//            var usuarioId = servicioUsuarios.ObtenerUsuarioId();
-//            var tableros = await context.Tableros
-//                .Where(t => t.IdUsuarioPropietario == usuarioId)
-//                .OrderBy(t => t.Id)
-//                .ProjectTo<TableroDTO>(mapper.ConfigurationProvider)
-//                .ToListAsync();
+        [HttpGet]
+        public async Task<ActionResult<List<TableroDTO>>> Get()
+        {
+            var usuarioId = servicioUsuarios.ObtenerUsuarioId();
+            var tableros = await context.Tableros
+                .Where(t => t.IdUsuarioPropietario == int.Parse(usuarioId))
+                .OrderBy(t => t.Orden)
+                .ProjectTo<TableroDTO>(mapper.ConfigurationProvider)
+                .ToListAsync();
 
-//            return tableros;
-//        }
+            return tableros;
+        }
 
-//        [HttpGet("{id:int}")]
-//        public async Task<ActionResult<Tablero>> Get(int id)
-//        {
-//            var usuarioId = servicioUsuarios.ObtenerUsuarioId();
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<Tablero>> Get(int id)
+        {
+            var usuarioId = servicioUsuarios.ObtenerUsuarioId();
 
-//            var tablero = await context.Tableros.FirstOrDefaultAsync(t => t.Id == id &&
-//            t.IdUsuarioPropietario == usuarioId);
+            var tablero = await context.Tableros
+                //.Include(t => t.Pasos.OrderBy(p => p.Orden))
+                .FirstOrDefaultAsync(t => t.Id == id &&
+            t.IdUsuarioPropietario == int.Parse(usuarioId));
 
-//            if (tablero is null)
-//            {
-//                return NotFound();
-//            }
+            if (tablero is null)
+            {
+                return NotFound();
+            }
 
-//            return tablero;
-//        }
+            return tablero;
 
-//        [HttpPost]
-//        public async Task<ActionResult<Tablero>> Post([FromBody] string nombre)
-//        {
-//            var usuarioId = servicioUsuarios.ObtenerUsuarioId();
+        }
 
-//            var tablero = new Tablero
-//            {
-//                Nombre = nombre,
-//                IdUsuarioPropietario = usuarioId
-//            };
+        [HttpPost]
+        public async Task<ActionResult<Tablero>> Post([FromBody] string titulo)
+        {
+            var usuarioId = servicioUsuarios.ObtenerUsuarioId();
 
-//            context.Add(tablero);
-//            await context.SaveChangesAsync();
+            var existenTableros = await context.Tableros.AnyAsync(t => t.IdUsuarioPropietario == int.Parse(usuarioId));
 
-//            return tablero;
-//        }
+            var ordenMayor = 0;
+            if (existenTableros)
+            {
+                ordenMayor = await context.Tableros.Where(t => t.IdUsuarioPropietario == int.Parse(usuarioId))
+                    .Select(t => t.Orden).MaxAsync();
+            }
 
-//        [HttpPut("{id:int}")]
-//        public async Task<IActionResult> EditarTablero(int id, [FromBody] TableroEditarDTO tableroEditarDTO)
-//        {
-//            var usuarioId = servicioUsuarios.ObtenerUsuarioId();
+            var tablero = new Tablero
+            {
+                Nombre = titulo,
+                IdUsuarioPropietario = int.Parse(usuarioId),
+                Orden = ordenMayor + 1
+            };
 
-//            var tablero = await context.Tableros.FirstOrDefaultAsync(t => t.Id == id &&
-//            t.IdUsuarioPropietario == usuarioId);
+            context.Add(tablero);
+            await context.SaveChangesAsync();
 
-//            if (tablero is null)
-//            {
-//                return NotFound();
-//            }
+            return tablero;
+        }
 
-//            tablero.Nombre = tableroEditarDTO.Nombre;
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> EditarTablero(int id, [FromBody] TableroEditarDTO tableroEditarDTO)
+        {
+            var usuarioId = servicioUsuarios.ObtenerUsuarioId();
 
-//            await context.SaveChangesAsync();
+            var tablero = await context.Tableros.FirstOrDefaultAsync(t => t.Id == id &&
+            t.IdUsuarioPropietario == int.Parse(usuarioId));
 
-//            return Ok();
-//        }
+            if (tablero is null)
+            {
+                return NotFound();
+            }
 
-//        [HttpDelete("{id:int}")]
-//        public async Task<ActionResult> Delete(int id)
-//        {
-//            var usuarioId = servicioUsuarios.ObtenerUsuarioId();
+            tablero.Nombre = tableroEditarDTO.Titulo;
+            tablero.Descripcion = tableroEditarDTO.Descripcion;
 
-//            var tablero = await context.Tableros.FirstOrDefaultAsync(t => t.Id == id &&
-//            t.IdUsuarioPropietario == usuarioId);
+            await context.SaveChangesAsync();
 
-//            if (tablero is null)
-//            {
-//                return NotFound();
-//            }
+            return Ok();
+        }
 
-//            context.Remove(tablero);
-//            await context.SaveChangesAsync();
-//            return Ok();
-//        }
-//    }
-//}
+        [HttpDelete("{id:int}")]
+        public async Task<ActionResult> Delete(int id)
+        {
+            var usuarioId = servicioUsuarios.ObtenerUsuarioId();
+
+            var tablero = await context.Tableros.FirstOrDefaultAsync(t => t.Id == id &&
+            t.IdUsuarioPropietario == int.Parse(usuarioId));
+
+            if (tablero is null)
+            {
+                return NotFound();
+            }
+
+            context.Remove(tablero);
+            await context.SaveChangesAsync();
+            return Ok();
+        }
+
+
+        [HttpPost("ordenar")]
+        public async Task<IActionResult> Ordenar([FromBody] int[] ids)
+        {
+            var usuarioId = servicioUsuarios.ObtenerUsuarioId();
+
+            var tableros = await context.Tableros
+                .Where(t => t.IdUsuarioPropietario == int.Parse(usuarioId)).ToListAsync();
+
+            var tablerosId = tableros.Select(t => t.Id);
+
+            var idsTablerosNoPertenecenAlUsuario = ids.Except(tablerosId).ToList();
+
+            if (idsTablerosNoPertenecenAlUsuario.Any())
+            {
+                return Forbid();
+            }
+
+            var tablerosDiccionario = tableros.ToDictionary(x => x.Id);
+
+            for (int i = 0; i < ids.Length; i++)
+            {
+                var id = ids[i];
+                var tablero = tablerosDiccionario[id];
+                tablero.Orden = i + 1;
+            }
+
+            await context.SaveChangesAsync();
+
+            return Ok();
+        }
+    }
+
+
+}

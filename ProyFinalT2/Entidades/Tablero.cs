@@ -12,5 +12,6 @@ namespace ProyFinalT2.Entidades
         public string Descripcion { get; set; }
         public int IdUsuarioPropietario { get; set; }
         public List<Tarea> Tareas { get; set; } = new List<Tarea>();
+        public int Orden { get; set; }
     }
 }
