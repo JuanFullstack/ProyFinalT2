@@ -1,12 +1,13 @@
-﻿using ProyFinalT2.Entidades;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using ProyFinalT2.Entidades;
+using ProyFinalT2.Models;
+using ProyFinalT2.Servicios;
+using ProyFinalT2;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ProyFinalT2.Servicios;
-using ProyFinalT2.Models;
-using AutoMapper.QueryableExtensions;
-using AutoMapper;
 
-namespace ProyFinalT2.Controllers
+namespace TablerosMVC.Controllers
 {
     [Route("api/tableros")]
     public class TablerosController : ControllerBase
@@ -43,6 +44,7 @@ namespace ProyFinalT2.Controllers
             var usuarioId = servicioUsuarios.ObtenerUsuarioId();
 
             var tablero = await context.Tableros
+                .Include(t => t.Pasos.OrderBy(p => p.Orden))
                 .FirstOrDefaultAsync(t => t.Id == id &&
             t.UsuarioCreacionId == usuarioId);
 
@@ -52,6 +54,7 @@ namespace ProyFinalT2.Controllers
             }
 
             return tablero;
+
         }
 
         [HttpPost]
@@ -72,6 +75,7 @@ namespace ProyFinalT2.Controllers
             {
                 Titulo = titulo,
                 UsuarioCreacionId = usuarioId,
+                FechaCreacion = DateTime.UtcNow,
                 Orden = ordenMayor + 1
             };
 
@@ -151,7 +155,4 @@ namespace ProyFinalT2.Controllers
             return Ok();
         }
     }
-
-
-
 }

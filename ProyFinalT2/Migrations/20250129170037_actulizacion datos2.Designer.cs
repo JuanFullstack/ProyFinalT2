@@ -12,8 +12,8 @@ using ProyFinalT2;
 namespace ProyFinalT2.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250124182205_PrimeraMigracion")]
-    partial class PrimeraMigracion
+    [Migration("20250129170037_actulizacion datos2")]
+    partial class actulizaciondatos2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -223,37 +223,11 @@ namespace ProyFinalT2.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("ProyFinalT2.Entidades.Tablero", b =>
+            modelBuilder.Entity("ProyFinalT2.Entidades.Paso", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Descripcion")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("IdUsuarioPropietario")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Tableros");
-                });
-
-            modelBuilder.Entity("ProyFinalT2.Entidades.Tarea", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Color")
                         .HasColumnType("nvarchar(max)");
@@ -290,7 +264,39 @@ namespace ProyFinalT2.Migrations
 
                     b.HasIndex("UsuarioCreacionId");
 
-                    b.ToTable("Tareas");
+                    b.ToTable("Pasos");
+                });
+
+            modelBuilder.Entity("ProyFinalT2.Entidades.Tablero", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Descripcion")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Orden")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Titulo")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<string>("UsuarioCreacionId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UsuarioCreacionId");
+
+                    b.ToTable("Tableros");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -344,10 +350,10 @@ namespace ProyFinalT2.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ProyFinalT2.Entidades.Tarea", b =>
+            modelBuilder.Entity("ProyFinalT2.Entidades.Paso", b =>
                 {
                     b.HasOne("ProyFinalT2.Entidades.Tablero", "Tablero")
-                        .WithMany("Tareas")
+                        .WithMany("Pasos")
                         .HasForeignKey("TableroId");
 
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "UsuarioCreacion")
@@ -361,7 +367,16 @@ namespace ProyFinalT2.Migrations
 
             modelBuilder.Entity("ProyFinalT2.Entidades.Tablero", b =>
                 {
-                    b.Navigation("Tareas");
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "UsuarioCreacion")
+                        .WithMany()
+                        .HasForeignKey("UsuarioCreacionId");
+
+                    b.Navigation("UsuarioCreacion");
+                });
+
+            modelBuilder.Entity("ProyFinalT2.Entidades.Tablero", b =>
+                {
+                    b.Navigation("Pasos");
                 });
 #pragma warning restore 612, 618
         }

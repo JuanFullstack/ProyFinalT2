@@ -2,7 +2,7 @@ using ProyFinalT2.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
-namespace ManejosTareas.Seguridad.JC.Controllers
+namespace ProyFinalT2.Controllers
 {
     public class HomeController : Controller
     {

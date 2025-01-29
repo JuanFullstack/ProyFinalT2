@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ProyFinalT2.Migrations
 {
     /// <inheritdoc />
-    public partial class PrimeraMigracion : Migration
+    public partial class actulizaciondatos2 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -48,21 +48,6 @@ namespace ProyFinalT2.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Tableros",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Nombre = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: false),
-                    Descripcion = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    IdUsuarioPropietario = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Tableros", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -172,11 +157,32 @@ namespace ProyFinalT2.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Tareas",
+                name: "Tableros",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    Titulo = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: false),
+                    Descripcion = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    UsuarioCreacionId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    FechaCreacion = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Orden = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Tableros", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Tableros_AspNetUsers_UsuarioCreacionId",
+                        column: x => x.UsuarioCreacionId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Pasos",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Titulo = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: false),
                     FechaCreacion = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Descripcion = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -189,14 +195,14 @@ namespace ProyFinalT2.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Tareas", x => x.Id);
+                    table.PrimaryKey("PK_Pasos", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Tareas_AspNetUsers_UsuarioCreacionId",
+                        name: "FK_Pasos_AspNetUsers_UsuarioCreacionId",
                         column: x => x.UsuarioCreacionId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Tareas_Tableros_TableroId",
+                        name: "FK_Pasos_Tableros_TableroId",
                         column: x => x.TableroId,
                         principalTable: "Tableros",
                         principalColumn: "Id");
@@ -242,13 +248,18 @@ namespace ProyFinalT2.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Tareas_TableroId",
-                table: "Tareas",
+                name: "IX_Pasos_TableroId",
+                table: "Pasos",
                 column: "TableroId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Tareas_UsuarioCreacionId",
-                table: "Tareas",
+                name: "IX_Pasos_UsuarioCreacionId",
+                table: "Pasos",
+                column: "UsuarioCreacionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tableros_UsuarioCreacionId",
+                table: "Tableros",
                 column: "UsuarioCreacionId");
         }
 
@@ -271,16 +282,16 @@ namespace ProyFinalT2.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "Tareas");
+                name: "Pasos");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
+                name: "Tableros");
 
             migrationBuilder.DropTable(
-                name: "Tableros");
+                name: "AspNetUsers");
         }
     }
 }
