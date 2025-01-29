@@ -22,9 +22,9 @@ namespace ProyFinalT2
 
             ////representa la tabla Tareas de la base de datos 
             public DbSet<Tablero> Tableros { get; set; }
-            public DbSet<Tarea> Tareas { get; set; }
+            public DbSet<Paso> Pasos { get; set; }
 
 
-        }
+    }
     
 }

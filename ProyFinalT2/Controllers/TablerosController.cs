@@ -29,7 +29,7 @@ namespace ProyFinalT2.Controllers
         {
             var usuarioId = servicioUsuarios.ObtenerUsuarioId();
             var tableros = await context.Tableros
-                .Where(t => t.IdUsuarioPropietario == int.Parse(usuarioId))
+                .Where(t => t.UsuarioCreacionId == usuarioId)
                 .OrderBy(t => t.Orden)
                 .ProjectTo<TableroDTO>(mapper.ConfigurationProvider)
                 .ToListAsync();
@@ -43,9 +43,8 @@ namespace ProyFinalT2.Controllers
             var usuarioId = servicioUsuarios.ObtenerUsuarioId();
 
             var tablero = await context.Tableros
-                //.Include(t => t.Pasos.OrderBy(p => p.Orden))
                 .FirstOrDefaultAsync(t => t.Id == id &&
-            t.IdUsuarioPropietario == int.Parse(usuarioId));
+            t.UsuarioCreacionId == usuarioId);
 
             if (tablero is null)
             {
@@ -53,7 +52,6 @@ namespace ProyFinalT2.Controllers
             }
 
             return tablero;
-
         }
 
         [HttpPost]
@@ -61,19 +59,19 @@ namespace ProyFinalT2.Controllers
         {
             var usuarioId = servicioUsuarios.ObtenerUsuarioId();
 
-            var existenTableros = await context.Tableros.AnyAsync(t => t.IdUsuarioPropietario == int.Parse(usuarioId));
+            var existenTableros = await context.Tableros.AnyAsync(t => t.UsuarioCreacionId == usuarioId);
 
             var ordenMayor = 0;
             if (existenTableros)
             {
-                ordenMayor = await context.Tableros.Where(t => t.IdUsuarioPropietario == int.Parse(usuarioId))
+                ordenMayor = await context.Tableros.Where(t => t.UsuarioCreacionId == usuarioId)
                     .Select(t => t.Orden).MaxAsync();
             }
 
             var tablero = new Tablero
             {
-                Nombre = titulo,
-                IdUsuarioPropietario = int.Parse(usuarioId),
+                Titulo = titulo,
+                UsuarioCreacionId = usuarioId,
                 Orden = ordenMayor + 1
             };
 
@@ -89,14 +87,14 @@ namespace ProyFinalT2.Controllers
             var usuarioId = servicioUsuarios.ObtenerUsuarioId();
 
             var tablero = await context.Tableros.FirstOrDefaultAsync(t => t.Id == id &&
-            t.IdUsuarioPropietario == int.Parse(usuarioId));
+            t.UsuarioCreacionId == usuarioId);
 
             if (tablero is null)
             {
                 return NotFound();
             }
 
-            tablero.Nombre = tableroEditarDTO.Titulo;
+            tablero.Titulo = tableroEditarDTO.Titulo;
             tablero.Descripcion = tableroEditarDTO.Descripcion;
 
             await context.SaveChangesAsync();
@@ -110,7 +108,7 @@ namespace ProyFinalT2.Controllers
             var usuarioId = servicioUsuarios.ObtenerUsuarioId();
 
             var tablero = await context.Tableros.FirstOrDefaultAsync(t => t.Id == id &&
-            t.IdUsuarioPropietario == int.Parse(usuarioId));
+            t.UsuarioCreacionId == usuarioId);
 
             if (tablero is null)
             {
@@ -122,14 +120,13 @@ namespace ProyFinalT2.Controllers
             return Ok();
         }
 
-
         [HttpPost("ordenar")]
         public async Task<IActionResult> Ordenar([FromBody] int[] ids)
         {
             var usuarioId = servicioUsuarios.ObtenerUsuarioId();
 
             var tableros = await context.Tableros
-                .Where(t => t.IdUsuarioPropietario == int.Parse(usuarioId)).ToListAsync();
+                .Where(t => t.UsuarioCreacionId == usuarioId).ToListAsync();
 
             var tablerosId = tableros.Select(t => t.Id);
 
@@ -154,6 +151,7 @@ namespace ProyFinalT2.Controllers
             return Ok();
         }
     }
+
 
 
 }

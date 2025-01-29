@@ -3,9 +3,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ProyFinalT2.Entidades
 {
-    public class Tarea
+    public class Paso
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
 
         [Required]
         [StringLength(250)]
@@ -15,7 +15,6 @@ namespace ProyFinalT2.Entidades
 
         [Required]
         public int Estado { get; set; } // Por ejemplo: 1 = "Pendiente", 2 = "En Proceso", 3 = "Finalizada"
-
         public string Color { get; set; } // Color asociado a la tarea, ejemplo: "#FF5733"
 
         // Relación con Tablero

@@ -8,10 +8,12 @@ namespace ProyFinalT2.Entidades
         public int Id { get; set; }
         [Required]
         [StringLength(250)]
-        public string Nombre { get; set; }
+        public string Titulo { get; set; }
         public string Descripcion { get; set; }
-        public int IdUsuarioPropietario { get; set; }
-        public List<Tarea> Tareas { get; set; } = new List<Tarea>();
+        public string UsuarioCreacionId { get; set; }
+        public IdentityUser UsuarioCreacion { get; set; }
+        public DateTime FechaCreacion { get; set; }
+        public List<Paso> Pasos { get; set; }
         public int Orden { get; set; }
     }
 }
