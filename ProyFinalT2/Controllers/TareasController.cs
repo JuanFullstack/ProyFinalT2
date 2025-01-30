@@ -1,22 +1,22 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using ProyFinalT2.Entidades;
 using ProyFinalT2.Models;
 using ProyFinalT2.Servicios;
 using ProyFinalT2;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
-namespace TablerosMVC.Controllers
+namespace TareasMVC.Controllers
 {
-    [Route("api/tableros")]
-    public class TablerosController : ControllerBase
+    [Route("api/tareas")]
+    public class TareasController : ControllerBase
     {
         private readonly ApplicationDbContext context;
         private readonly IServicioUsuarios servicioUsuarios;
         private readonly IMapper mapper;
 
-        public TablerosController(ApplicationDbContext context,
+        public TareasController(ApplicationDbContext context,
             IServicioUsuarios servicioUsuarios,
             IMapper mapper)
         {
@@ -26,52 +26,52 @@ namespace TablerosMVC.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<TableroDTO>>> Get()
+        public async Task<ActionResult<List<TareaDTO>>> Get()
         {
             var usuarioId = servicioUsuarios.ObtenerUsuarioId();
-            var tableros = await context.Tableros
+            var tareas = await context.Tareas
                 .Where(t => t.UsuarioCreacionId == usuarioId)
                 .OrderBy(t => t.Orden)
-                .ProjectTo<TableroDTO>(mapper.ConfigurationProvider)
+                .ProjectTo<TareaDTO>(mapper.ConfigurationProvider)
                 .ToListAsync();
 
-            return tableros;
+            return tareas;
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<Tablero>> Get(int id)
+        public async Task<ActionResult<Tarea>> Get(int id)
         {
             var usuarioId = servicioUsuarios.ObtenerUsuarioId();
 
-            var tablero = await context.Tableros
+            var tarea = await context.Tareas
                 .Include(t => t.Pasos.OrderBy(p => p.Orden))
                 .FirstOrDefaultAsync(t => t.Id == id &&
             t.UsuarioCreacionId == usuarioId);
 
-            if (tablero is null)
+            if (tarea is null)
             {
                 return NotFound();
             }
 
-            return tablero;
+            return tarea;
 
         }
 
         [HttpPost]
-        public async Task<ActionResult<Tablero>> Post([FromBody] string titulo)
+        public async Task<ActionResult<Tarea>> Post([FromBody] string titulo)
         {
             var usuarioId = servicioUsuarios.ObtenerUsuarioId();
 
-            var existenTableros = await context.Tableros.AnyAsync(t => t.UsuarioCreacionId == usuarioId);
+            var existenTareas = await context.Tareas.AnyAsync(t => t.UsuarioCreacionId == usuarioId);
 
             var ordenMayor = 0;
-            if (existenTableros)
+            if (existenTareas)
             {
-                ordenMayor = await context.Tableros.Where(t => t.UsuarioCreacionId == usuarioId)
+                ordenMayor = await context.Tareas.Where(t => t.UsuarioCreacionId == usuarioId)
                     .Select(t => t.Orden).MaxAsync();
             }
 
-            var tablero = new Tablero
+            var tarea = new Tarea
             {
                 Titulo = titulo,
                 UsuarioCreacionId = usuarioId,
@@ -79,27 +79,27 @@ namespace TablerosMVC.Controllers
                 Orden = ordenMayor + 1
             };
 
-            context.Add(tablero);
+            context.Add(tarea);
             await context.SaveChangesAsync();
 
-            return tablero;
+            return tarea;
         }
 
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> EditarTablero(int id, [FromBody] TableroEditarDTO tableroEditarDTO)
+        public async Task<IActionResult> EditarTarea(int id, [FromBody] TareaEditarDTO tareaEditarDTO)
         {
             var usuarioId = servicioUsuarios.ObtenerUsuarioId();
 
-            var tablero = await context.Tableros.FirstOrDefaultAsync(t => t.Id == id &&
+            var tarea = await context.Tareas.FirstOrDefaultAsync(t => t.Id == id &&
             t.UsuarioCreacionId == usuarioId);
 
-            if (tablero is null)
+            if (tarea is null)
             {
                 return NotFound();
             }
 
-            tablero.Titulo = tableroEditarDTO.Titulo;
-            tablero.Descripcion = tableroEditarDTO.Descripcion;
+            tarea.Titulo = tareaEditarDTO.Titulo;
+            tarea.Descripcion = tareaEditarDTO.Descripcion;
 
             await context.SaveChangesAsync();
 
@@ -111,43 +111,44 @@ namespace TablerosMVC.Controllers
         {
             var usuarioId = servicioUsuarios.ObtenerUsuarioId();
 
-            var tablero = await context.Tableros.FirstOrDefaultAsync(t => t.Id == id &&
+            var tarea = await context.Tareas.FirstOrDefaultAsync(t => t.Id == id &&
             t.UsuarioCreacionId == usuarioId);
 
-            if (tablero is null)
+            if (tarea is null)
             {
                 return NotFound();
             }
 
-            context.Remove(tablero);
+            context.Remove(tarea);
             await context.SaveChangesAsync();
             return Ok();
         }
+
 
         [HttpPost("ordenar")]
         public async Task<IActionResult> Ordenar([FromBody] int[] ids)
         {
             var usuarioId = servicioUsuarios.ObtenerUsuarioId();
 
-            var tableros = await context.Tableros
+            var tareas = await context.Tareas
                 .Where(t => t.UsuarioCreacionId == usuarioId).ToListAsync();
 
-            var tablerosId = tableros.Select(t => t.Id);
+            var tareasId = tareas.Select(t => t.Id);
 
-            var idsTablerosNoPertenecenAlUsuario = ids.Except(tablerosId).ToList();
+            var idsTareasNoPertenecenAlUsuario = ids.Except(tareasId).ToList();
 
-            if (idsTablerosNoPertenecenAlUsuario.Any())
+            if (idsTareasNoPertenecenAlUsuario.Any())
             {
                 return Forbid();
             }
 
-            var tablerosDiccionario = tableros.ToDictionary(x => x.Id);
+            var tareasDiccionario = tareas.ToDictionary(x => x.Id);
 
             for (int i = 0; i < ids.Length; i++)
             {
                 var id = ids[i];
-                var tablero = tablerosDiccionario[id];
-                tablero.Orden = i + 1;
+                var tarea = tareasDiccionario[id];
+                tarea.Orden = i + 1;
             }
 
             await context.SaveChangesAsync();

@@ -19,7 +19,7 @@ namespace ProyFinalT2.Entidades
 
         // Relación con Tablero
         public int IdTablero { get; set; }
-        public Tablero Tablero { get; set; }
+        public Tarea Tablero { get; set; }
         public int Orden { get; set; }
 
         // Relación con Usuario asignado

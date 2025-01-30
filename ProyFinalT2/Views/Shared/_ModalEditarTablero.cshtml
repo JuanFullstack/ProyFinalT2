@@ -19,7 +19,7 @@
                             <label>Descripción</label>
                             <textarea type="text" class="form-control" rows="4"
                                       data-bind="value: descripcion,
-                                        event: {change: manejarCambioEditarTablero}">
+                                                 event: {change: manejarCambioEditarTablero}">
 
                             </textarea>
                         </div>
@@ -28,7 +28,7 @@
                         </div>
                     </div>
                     <div class="col-lg-3">
-                        <button data-bind="{click: intentarBorrarTablero}"
+                        <button data-bind="click: intentarBorrarTablero"
                                 class="btn btn-secondary mb-2 w-100 text-start">
                             <i class="bi bi-x-lg"></i>
                             Borrar tablero

@@ -39,7 +39,7 @@ namespace ProyFinalT2.Controllers
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<Tablero>> Get(int id)
+        public async Task<ActionResult<Tarea>> Get(int id)
         {
             var usuarioId = servicioUsuarios.ObtenerUsuarioId();
 
@@ -58,7 +58,7 @@ namespace ProyFinalT2.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Tablero>> Post([FromBody] string titulo)
+        public async Task<ActionResult<Tarea>> Post([FromBody] string titulo)
         {
             var usuarioId = servicioUsuarios.ObtenerUsuarioId();
 
@@ -71,7 +71,7 @@ namespace ProyFinalT2.Controllers
                     .Select(t => t.Orden).MaxAsync();
             }
 
-            var tablero = new Tablero
+            var tablero = new Tarea
             {
                 Titulo = titulo,
                 UsuarioCreacionId = usuarioId,

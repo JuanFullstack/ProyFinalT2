@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace ProyFinalT2.Entidades
 {
-    public class Tablero
+    public class Tarea
     {
         public int Id { get; set; }
         [Required]

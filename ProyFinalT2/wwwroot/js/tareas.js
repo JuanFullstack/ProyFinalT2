@@ -1,19 +1,19 @@
-﻿function agregarNuevoTableroAlListado() {
-    tableroListadoViewModel.tableros.push(new tableroElementoListadoViewModel({ id: 0, titulo: '' }));
+﻿function agregarNuevaTareaAlListado() {
+    tareaListadoViewModel.tareas.push(new tareaElementoListadoViewModel({ id: 0, titulo: '' }));
 
-    $("[name=titulo-tablero]").last().focus();
+    $("[name=titulo-tarea]").last().focus();
 
 }
 
-async function manejarFocusoutTituloTablero(tablero) {
-    const titulo = tablero.titulo();
+async function manejarFocusoutTituloTarea(tarea) {
+    const titulo = tarea.titulo();
     if (!titulo) {
-        tableroListadoViewModel.tableros.pop();
+        tareaListadoViewModel.tareas.pop();
         return;
     }
 
     const data = JSON.stringify(titulo);
-    const respuesta = await fetch(urlTableros, {
+    const respuesta = await fetch(urlTareas, {
         method: 'POST',
         body: data,
         headers: {
@@ -23,16 +23,16 @@ async function manejarFocusoutTituloTablero(tablero) {
 
     if (respuesta.ok) {
         const json = await respuesta.json();
-        tablero.id(json.id);
+        tarea.id(json.id);
     } else {
         manejarErrorApi(respuesta);
     }
 }
 
-async function obtenerTableros() {
-    tableroListadoViewModel.cargando(true);
+async function obtenerTareas() {
+    tareaListadoViewModel.cargando(true);
 
-    const respuesta = await fetch(urlTableros, {
+    const respuesta = await fetch(urlTareas, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json'
@@ -45,38 +45,38 @@ async function obtenerTableros() {
     }
 
     const json = await respuesta.json();
-    tableroListadoViewModel.tableros([]);
+    tareaListadoViewModel.tareas([]);
 
     json.forEach(valor => {
-        tableroListadoViewModel.tableros.push(new tableroElementoListadoViewModel(valor));
+        tareaListadoViewModel.tareas.push(new tareaElementoListadoViewModel(valor));
     });
 
-    tableroListadoViewModel.cargando(false);
+    tareaListadoViewModel.cargando(false);
 
 }
 
-async function actualizarOrdenTableros() {
-    const ids = obtenerIdsTableros();
-    await enviarIdsTablerosAlBackend(ids);
+async function actualizarOrdenTareas() {
+    const ids = obtenerIdsTareas();
+    await enviarIdsTareasAlBackend(ids);
 
-    const arregloOrdenado = tableroListadoViewModel.tableros.sorted(function (a, b) {
+    const arregloOrdenado = tareaListadoViewModel.tareas.sorted(function (a, b) {
         return ids.indexOf(a.id().toString()) - ids.indexOf(b.id().toString());
     });
 
-    tableroListadoViewModel.tableros([]);
-    tableroListadoViewModel.tableros(arregloOrdenado);
+    tareaListadoViewModel.tareas([]);
+    tareaListadoViewModel.tareas(arregloOrdenado);
 }
 
-function obtenerIdsTableros() {
-    const ids = $("[name=titulo-tablero]").map(function () {
+function obtenerIdsTareas() {
+    const ids = $("[name=titulo-tarea]").map(function () {
         return $(this).attr("data-id");
     }).get();
     return ids;
 }
 
-async function enviarIdsTablerosAlBackend(ids) {
+async function enviarIdsTareasAlBackend(ids) {
     var data = JSON.stringify(ids);
-    await fetch(`${urlTableros}/ordenar`, {
+    await fetch(`${urlTareas}/ordenar`, {
         method: 'POST',
         body: data,
         headers: {
@@ -85,12 +85,12 @@ async function enviarIdsTablerosAlBackend(ids) {
     });
 }
 
-async function manejarClickTablero(tablero) {
-    if (tablero.esNuevo()) {
+async function manejarClickTarea(tarea) {
+    if (tarea.esNuevo()) {
         return;
     }
 
-    const respuesta = await fetch(`${urlTableros}/${tablero.id()}`, {
+    const respuesta = await fetch(`${urlTareas}/${tarea.id()}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json'
@@ -104,44 +104,44 @@ async function manejarClickTablero(tablero) {
 
     const json = await respuesta.json();
 
-    tableroEditarVM.id = json.id;
-    tableroEditarVM.titulo(json.titulo);
-    tableroEditarVM.descripcion(json.descripcion);
+    tareaEditarVM.id = json.id;
+    tareaEditarVM.titulo(json.titulo);
+    tareaEditarVM.descripcion(json.descripcion);
 
-    tableroEditarVM.pasos([]);
+    tareaEditarVM.pasos([]);
 
     json.pasos.forEach(paso => {
-        tableroEditarVM.pasos.push(
+        tareaEditarVM.pasos.push(
             new pasoViewModel({ ...paso, modoEdicion: false })
         )
     })
 
-    modalEditarTableroBootstrap.show();
+    modalEditarTareaBootstrap.show();
 
 }
 
-async function manejarCambioEditarTablero() {
+async function manejarCambioEditarTarea() {
     const obj = {
-        id: tableroEditarVM.id,
-        titulo: tableroEditarVM.titulo(),
-        descripcion: tableroEditarVM.descripcion()
+        id: tareaEditarVM.id,
+        titulo: tareaEditarVM.titulo(),
+        descripcion: tareaEditarVM.descripcion()
     };
 
     if (!obj.titulo) {
         return;
     }
 
-    await editarTableroCompleto(obj);
+    await editarTareaCompleta(obj);
 
-    const indice = tableroListadoViewModel.tableros().findIndex(t => t.id() === obj.id);
-    const tablero = tableroListadoViewModel.tableros()[indice];
-    tablero.titulo(obj.titulo);
+    const indice = tareaListadoViewModel.tareas().findIndex(t => t.id() === obj.id);
+    const tarea = tareaListadoViewModel.tareas()[indice];
+    tarea.titulo(obj.titulo);
 }
 
-async function editarTableroCompleto(tablero) {
-    const data = JSON.stringify(tablero);
+async function editarTareaCompleta(tarea) {
+    const data = JSON.stringify(tarea);
 
-    const respuesta = await fetch(`${urlTableros}/${tablero.id}`, {
+    const respuesta = await fetch(`${urlTareas}/${tarea.id}`, {
         method: 'PUT',
         body: data,
         headers: {
@@ -155,25 +155,25 @@ async function editarTableroCompleto(tablero) {
     }
 }
 
-function intentarBorrarTablero(tablero) {
-    modalEditarTableroBootstrap.hide();
+function intentarBorrarTarea(tarea) {
+    modalEditarTareaBootstrap.hide();
 
     confirmarAccion({
         callbackAceptar: () => {
-            borrarTablero(tablero);
+            borrarTarea(tarea);
         },
         callbackCancelar: () => {
-            modalEditarTableroBootstrap.show();
+            modalEditarTareaBootstrap.show();
         },
-        titulo: `¿Desea borrar el tablero ${tablero.titulo()}?`
+        titulo: `¿Desea borrar la tarea ${tarea.titulo()}?`
     })
 
 }
 
-async function borrarTablero(tablero) {
-    const idTablero = tablero.id;
+async function borrarTarea(tarea) {
+    const idTarea = tarea.id;
 
-    const respuesta = await fetch(`${urlTableros}/${idTablero}`, {
+    const respuesta = await fetch(`${urlTareas}/${idTarea}`, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json'
@@ -181,25 +181,25 @@ async function borrarTablero(tablero) {
     });
 
     if (respuesta.ok) {
-        const indice = obtenerIndiceTableroEnEdicion();
-        tableroListadoViewModel.tableros.splice(indice, 1);
+        const indice = obtenerIndiceTareaEnEdicion();
+        tareaListadoViewModel.tareas.splice(indice, 1);
     }
 }
 
-function obtenerIndiceTableroEnEdicion() {
-    return tableroListadoViewModel.tableros().findIndex(t => t.id() == tableroEditarVM.id);
+function obtenerIndiceTareaEnEdicion() {
+    return tareaListadoViewModel.tareas().findIndex(t => t.id() == tareaEditarVM.id);
 }
 
-function obtenerTableroEnEdicion() {
-    const indice = obtenerIndiceTableroEnEdicion();
-    return tableroListadoViewModel.tableros()[indice];
+function obtenerTareaEnEdicion() {
+    const indice = obtenerIndiceTareaEnEdicion();
+    return tareaListadoViewModel.tareas()[indice];
 }
 
 $(function () {
     $("#reordenable").sortable({
         axis: 'y',
         stop: async function () {
-            await actualizarOrdenTableros();
+            await actualizarOrdenTareas();
         }
     })
 })

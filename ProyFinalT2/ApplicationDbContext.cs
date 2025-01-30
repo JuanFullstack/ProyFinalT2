@@ -20,9 +20,9 @@ namespace ProyFinalT2
                 //modelBuilder.Entity<Tarea>().Property(t => t.Titulo).HasMaxLength(250).IsRequired();
             }
 
-            ////representa la tabla Tareas de la base de datos 
-            public DbSet<Tablero> Tableros { get; set; }
-            public DbSet<Paso> Pasos { get; set; }
+        ////representa la tabla Tareas de la base de datos 
+        public DbSet<Tarea> Tareas { get; set; }
+        public DbSet<Paso> Pasos { get; set; }
 
 
     }

@@ -4,6 +4,6 @@ namespace ProyFinalT2.Models
 {
     public class TableroConTareasDTO : TableroDTO
     {
-        public List<Tablero> Tareas { get; set; }
+        public List<Tarea> Tareas { get; set; }
     }
 }
