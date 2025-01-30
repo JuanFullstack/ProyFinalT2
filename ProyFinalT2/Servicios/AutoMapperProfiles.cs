@@ -8,7 +8,7 @@ namespace ProyFinalT2.Servicios
     {
         public AutoMapperProfiles()
         {
-            CreateMap<Tarea, TableroDTO>();
+            CreateMap<Tarea, TareaDTO>();
         }
     }
 }

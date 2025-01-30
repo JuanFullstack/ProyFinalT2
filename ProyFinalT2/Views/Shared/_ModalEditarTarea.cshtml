@@ -1,25 +1,25 @@
-﻿<div class="modal fade" id="modal-editar-tablero" tabindex="-1">
+﻿<div class="modal fade" id="modal-editar-tarea" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modal-editar-tablero-titulo" data-bind="text: titulo"></h5>
+                <h5 class="modal-title" id="modal-editar-tarea-titulo" data-bind="text: titulo"></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <div class="row">
                     <div class="col-lg-9">
                         <div class="form-floating mb-3">
-                            <input type="text" class="form-control" id="txtTituloCrearTablero"
+                            <input type="text" class="form-control" id="txtTituloCrearTarea"
                                    placeholder="titulo"
                                    autocomplete="off"
-                                   data-bind="value: titulo, event: {change: manejarCambioEditarTablero}" />
-                            <label for="txtTituloCrearTablero">Título del tablero</label>
+                                   data-bind="value: titulo, event: {change: manejarCambioEditarTarea}" />
+                            <label for="txtTituloCrearTarea">Título de la tarea</label>
                         </div>
                         <div class="mb-3">
                             <label>Descripción</label>
                             <textarea type="text" class="form-control" rows="4"
                                       data-bind="value: descripcion,
-                                                 event: {change: manejarCambioEditarTablero}">
+                                        event: {change: manejarCambioEditarTarea}">
 
                             </textarea>
                         </div>
@@ -28,10 +28,10 @@
                         </div>
                     </div>
                     <div class="col-lg-3">
-                        <button data-bind="click: intentarBorrarTablero"
+                        <button data-bind="{click: intentarBorrarTarea}"
                                 class="btn btn-secondary mb-2 w-100 text-start">
                             <i class="bi bi-x-lg"></i>
-                            Borrar tablero
+                            Borrar tarea
                         </button>
                     </div>
                 </div>

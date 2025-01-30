@@ -17,10 +17,11 @@ namespace ProyFinalT2.Entidades
         public int Estado { get; set; } // Por ejemplo: 1 = "Pendiente", 2 = "En Proceso", 3 = "Finalizada"
         public string Color { get; set; } // Color asociado a la tarea, ejemplo: "#FF5733"
 
-        // Relación con Tablero
-        public int IdTablero { get; set; }
-        public Tarea Tablero { get; set; }
+        
+        public int TareaId { get; set; }
+        public Tarea Tarea { get; set; }
         public int Orden { get; set; }
+        public bool Realizado { get; set; }
 
         // Relación con Usuario asignado
         public string UsuarioCreacionId { get; set; }

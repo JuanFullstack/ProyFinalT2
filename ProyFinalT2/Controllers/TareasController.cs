@@ -7,7 +7,7 @@ using ProyFinalT2.Models;
 using ProyFinalT2.Servicios;
 using ProyFinalT2;
 
-namespace TareasMVC.Controllers
+namespace ProyFinalT2.Controllers
 {
     [Route("api/tareas")]
     public class TareasController : ControllerBase
