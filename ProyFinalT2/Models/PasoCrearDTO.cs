@@ -7,5 +7,6 @@ namespace ProyFinalT2.Models
         [Required]
         public string Descripcion { get; set; }
         public bool Realizado { get; set; }
+
     }
 }

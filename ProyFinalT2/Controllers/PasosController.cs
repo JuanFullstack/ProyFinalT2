@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using ProyFinalT2.Entidades;
 using ProyFinalT2.Models;
 using ProyFinalT2.Servicios;
-using ProyFinalT2;
 
 namespace ProyFinalT2.Controllers
 {
@@ -25,20 +24,25 @@ namespace ProyFinalT2.Controllers
         [HttpPost("{tareaId:int}")]
         public async Task<ActionResult<Paso>> Post(int tareaId, [FromBody] PasoCrearDTO pasoCrearDTO)
         {
+            // Obtener el usuario autenticado
             var usuarioId = servicioUsuarios.ObtenerUsuarioId();
 
+            // Validar que la tarea exista y pertenezca al usuario
             var tarea = await context.Tareas.FirstOrDefaultAsync(t => t.Id == tareaId);
 
+            // Si la tarea no existe 
             if (tarea is null)
             {
                 return NotFound();
             }
 
+            // Si la tarea no pertenece al usuario autenticado
             if (tarea.UsuarioCreacionId != usuarioId)
             {
                 return Forbid();
             }
 
+            // Validar si existen pasos para la tarea 
             var existenPasos = await context.Pasos.AnyAsync(p => p.TareaId == tareaId);
 
             var ordenMayor = 0;
@@ -48,6 +52,7 @@ namespace ProyFinalT2.Controllers
                     .Where(p => p.TareaId == tareaId).Select(p => p.Orden).MaxAsync();
             }
 
+            // Crear el paso 
             var paso = new Paso();
             paso.TareaId = tareaId;
             paso.Orden = ordenMayor + 1;
