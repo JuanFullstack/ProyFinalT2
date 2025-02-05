@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ProyFinalT2.Migrations
 {
     /// <inheritdoc />
-    public partial class NuevoParadigma : Migration
+    public partial class AdminRole : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -183,24 +183,14 @@ namespace ProyFinalT2.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Titulo = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: false),
-                    FechaCreacion = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Descripcion = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Estado = table.Column<int>(type: "int", nullable: false),
-                    Color = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     TareaId = table.Column<int>(type: "int", nullable: false),
-                    Orden = table.Column<int>(type: "int", nullable: false),
+                    Descripcion = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Realizado = table.Column<bool>(type: "bit", nullable: false),
-                    UsuarioCreacionId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    Orden = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Pasos", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Pasos_AspNetUsers_UsuarioCreacionId",
-                        column: x => x.UsuarioCreacionId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Pasos_Tareas_TareaId",
                         column: x => x.TareaId,
@@ -252,11 +242,6 @@ namespace ProyFinalT2.Migrations
                 name: "IX_Pasos_TareaId",
                 table: "Pasos",
                 column: "TareaId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Pasos_UsuarioCreacionId",
-                table: "Pasos",
-                column: "UsuarioCreacionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Tareas_UsuarioCreacionId",

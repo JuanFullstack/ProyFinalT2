@@ -12,8 +12,8 @@ using ProyFinalT2;
 namespace ProyFinalT2.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250130213458_NuevoParadigma")]
-    partial class NuevoParadigma
+    [Migration("20250205203853_AdminRole2")]
+    partial class AdminRole2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -229,17 +229,8 @@ namespace ProyFinalT2.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Color")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Descripcion")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Estado")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("FechaCreacion")
-                        .HasColumnType("datetime2");
 
                     b.Property<int>("Orden")
                         .HasColumnType("int");
@@ -250,19 +241,9 @@ namespace ProyFinalT2.Migrations
                     b.Property<int>("TareaId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Titulo")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
-
-                    b.Property<string>("UsuarioCreacionId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("TareaId");
-
-                    b.HasIndex("UsuarioCreacionId");
 
                     b.ToTable("Pasos");
                 });
@@ -358,13 +339,7 @@ namespace ProyFinalT2.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "UsuarioCreacion")
-                        .WithMany()
-                        .HasForeignKey("UsuarioCreacionId");
-
                     b.Navigation("Tarea");
-
-                    b.Navigation("UsuarioCreacion");
                 });
 
             modelBuilder.Entity("ProyFinalT2.Entidades.Tarea", b =>
